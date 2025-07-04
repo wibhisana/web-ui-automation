@@ -1,3 +1,4 @@
+@Regression
 Feature: Login Functionality
 
   Background:
@@ -7,7 +8,7 @@ Feature: Login Functionality
     Given I have entered a valid username "tomsmith"
     And I have entered a valid password "SuperSecretPassword!"
     When I click the login button
-    Then I should see a success message
+    Then I should see a success message containing "You logged into a secure area!"
 
   Scenario: Failed login with invalid credentials
     Given I have entered an invalid username "invalidUser"

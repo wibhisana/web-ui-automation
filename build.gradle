@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'io.qameta.allure' version '2.11.2'
 }
 
 group = 'org.example'
@@ -10,19 +11,59 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    // JUnit 4 (necesario para @RunWith en TestRunner)
+    testImplementation 'junit:junit:4.13.2'
+    
+    // Cucumber dependencies para JUnit 4
     testImplementation 'io.cucumber:cucumber-java:7.18.1'
     testImplementation 'io.cucumber:cucumber-junit:7.18.1'
-    implementation 'org.seleniumhq.selenium:selenium-java:4.32.0'
-    implementation 'io.github.bonigarcia:webdrivermanager:5.9.2'
+    
+    // Allure
+    testImplementation 'io.qameta.allure:allure-cucumber7-jvm:2.24.0'
+
+    // Selenium
+    implementation 'org.seleniumhq.selenium:selenium-java:4.22.0'
+    implementation 'io.github.bonigarcia:webdrivermanager:5.9.1'
+}
+
+allure {
+    adapter {
+        aspectjWeaver.set(true)
+        frameworks {
+            cucumber7 {
+                adapterVersion.set('2.24.0')
+            }
+        }
+    }
 }
 
 test {
-    useJUnitPlatform()
-    testLogging { events "passed", "skipped", "failed" }
+    useJUnit()
+    testLogging { 
+        events "passed", "skipped", "failed"
+        showStandardStreams = false
+        showStackTraces = false
+        showCauses = false
+        exceptionFormat = 'short'
+    }
+
+    systemProperty 'cucumber.filter.tags', System.getProperty('tags', '@Regression')
+    systemProperty 'browser', System.getProperty('browser', 'chrome')
+    systemProperty 'headless', System.getProperty('headless', 'true')
+    systemProperty 'cucumber.ansi-colors.disabled', 'true'
 }
 
-tasks.withType(Test) {
-    systemProperties['cucumber.options'] = '--plugin pretty --plugin html:build/reports/cucumber.html'
+// Tarea cucumber con Allure
+task cucumber(type: Test) {
+    useJUnit()
+    include '**/TestRunner.class'
+    systemProperty 'cucumber.plugin', [
+        'pretty',
+        'io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm',
+        'junit:build/test-results/test/cucumber.xml'
+    ].join(',')
+    systemProperty 'cucumber.filter.tags', System.getProperty('tags', '@Regression')
+    systemProperty 'browser', System.getProperty('browser', 'chrome')
+    systemProperty 'headless', System.getProperty('headless', 'true')
+    systemProperty 'cucumber.ansi-colors.disabled', 'true'
 }

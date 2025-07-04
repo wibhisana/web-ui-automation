@@ -1,6 +1,5 @@
 package runner;
 
-
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 import org.junit.runner.RunWith;
@@ -11,12 +10,11 @@ import org.junit.runner.RunWith;
         glue = "steps",
         plugin = {
                 "pretty",
-                "html:build/reports/cucumber.html",
-                "json:build/reports/cucumber.json",
-                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
+                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm",
+                "junit:build/test-results/test/cucumber.xml"
         },
         monochrome = true,
-        tags = ""
+        tags = "@Regression"
 )
 public class TestRunner {
 }
